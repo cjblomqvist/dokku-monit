@@ -5,10 +5,9 @@ A lot of the code is based upon the nginx-vhost plugin, included with dokku.
 
 ## Installation
 ```
-$ sudo su # (Required for permissions - don't use sudo - currently not needed)
 # cd /var/lib/dokku/plugins
 # git clone --depth 1 https://github.com/cjblomqvist/dokku-monit monit
-# dokku plugins-install (currently not needed)
+# dokku plugins-install
 ```
 
 ## TODO
