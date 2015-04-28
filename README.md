@@ -1,5 +1,7 @@
 # dokku-monit
-Dokku plugin for monit monitoring of apps
+Dokku plugin for monit monitoring of apps. Adds a monitrc file in each APP directory which can easily be included in /etc/monitrc. Also reloads monit on deploy/deletion/domain changes.
+
+A lot of the code is based upon the nginx-vhost plugin, included with dokku.
 
 ## Installation
 ```
