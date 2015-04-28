@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$(dirname $0)/../common/functions"
+
+restart_monit () {
+  sudo /usr/local/bin/monit reload > /dev/null
+}
+
+case "$1" in
+  monit:build-control)
+    APP="$2"; DOKKU_APP_LISTEN_PORT="$3"; DOKKU_APP_LISTEN_IP="${4}"
+    MONITRC_PATH="$DOKKU_ROOT/$APP/monitrc"
+    VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"
+
+    if [[ -z "$DOKKU_APP_LISTEN_PORT" ]] && [[ -f "$DOKKU_ROOT/$APP/PORT" ]]; then
+      DOKKU_APP_LISTEN_PORT=$(< "$DOKKU_ROOT/$APP/PORT")
+    fi
+    if [[ -z "$DOKKU_APP_LISTEN_IP" ]] && [[ -f "$DOKKU_ROOT/$APP/IP" ]]; then
+      DOKKU_APP_LISTEN_IP=$(< "$DOKKU_ROOT/$APP/IP")
+    fi
+
+    [[ -f "$DOKKU_ROOT/ENV" ]] && source $DOKKU_ROOT/ENV
+    [[ -f "$DOKKU_ROOT/$APP/ENV" ]] && source $DOKKU_ROOT/$APP/ENV
+
+    NONSSL_VHOSTS=$(head -n 1 $VHOST_PATH)
+    MONITRC=$(mktemp -t "monitrc.XXXXXX")
+
+    NOSSL_SERVER_NAME=$(echo $NONSSL_VHOSTS | tr '\n' ' ')
+
+    xargs -i echo "-----> Configuring {}..." <<< "$NONSSL_VHOSTS"
+    MONIT_TEMPLATE="$PLUGIN_PATH/monit/templates/monitrc.template"
+    eval "cat <<< \"$(< $MONIT_TEMPLATE)\" >> $MONITRC"
+
+    dokku_log_info1 "Creating monitrc"
+    mv $MONITRC "$DOKKU_ROOT/$APP/monitrc"
+
+    if [[ -n "$DOKKU_APP_LISTEN_PORT" ]] && [[ -n "$DOKKU_APP_LISTEN_IP" ]]; then
+      echo "       Reloading monit"
+      restart_monit
+    fi
+    ;;
+
+  help | monit:help)
+    cat && cat<<EOF
+    monit:build-control <app>                       (Re)builds monitrc for given app
+EOF
+    ;;
+
+  *)
+    exit $DOKKU_NOT_IMPLEMENTED_EXIT
+    ;;
+
+esac

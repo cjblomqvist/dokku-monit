@@ -1,0 +1,8 @@
+check host $APP with address $NONSSL_VHOSTS
+  restart program = \"/usr/local/bin/dokku ps:restart $APP\"
+
+  if failed
+    port 443 protocol https
+    and status = 200
+    and request /login with content = \"form class=login\"
+  then restart
