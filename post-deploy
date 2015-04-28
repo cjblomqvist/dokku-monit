@@ -1,11 +1,5 @@
 #!/usr/bin/env bash
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
-
-sudo /usr/local/bin/monit reload > /dev/null
-;;
-root@devweb1:/var/lib/dokku/plugins/monit# cat post-deploy
-#!/usr/bin/env bash
-set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$(dirname $0)/../common/functions"
 
 APP="$1"; PORT="$2"; IP="$3"
