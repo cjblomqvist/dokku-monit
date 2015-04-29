@@ -4,4 +4,8 @@ source "$(dirname $0)/../common/functions"
 
 APP="$1"; PORT="$2"; IP="$3"
 
+if [[ ! -f "$DOKKU_ROOT/$APP/VHOST" ]]; then
+  dokku domains:setup $APP
+fi
+
 dokku monit:build-control $APP $PORT $IP
