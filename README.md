@@ -7,7 +7,11 @@ A lot of the code is based upon the nginx-vhost plugin, included with dokku.
 ```
 # cd /var/lib/dokku/plugins
 # git clone --depth 1 https://github.com/cjblomqvist/dokku-monit monit
-# dokku plugins-install
+```
+
+Sometimes, it might be needed to manually adjust the permissions of the files, then run
+```
+# chmod -R 755 monit
 ```
 
 ## TODO
