@@ -8,7 +8,9 @@ restart_monit () {
 
 case "$1" in
   monit:build-control)
+    dokku_log_info1 "enter build control"
     APP="$2"; DOKKU_APP_LISTEN_PORT="$3"; DOKKU_APP_LISTEN_IP="${4}"
+    IMAGE="dokku/$APP"
     MONITRC_PATH="$DOKKU_ROOT/$APP/monitrc"
     VHOST_PATH="$DOKKU_ROOT/$APP/VHOST"
 
@@ -28,8 +30,51 @@ case "$1" in
     NOSSL_SERVER_NAME=$(echo $NONSSL_VHOSTS | tr '\n' ' ')
 
     xargs -i echo "-----> Configuring {}..." <<< "$NONSSL_VHOSTS"
-    MONIT_TEMPLATE="$PLUGIN_PATH/monit/templates/monitrc.template"
-    eval "cat <<< \"$(< $MONIT_TEMPLATE)\" >> $MONITRC"
+
+    MONIT_TEMPLATE="$PLUGIN_PATH/zmonit/templates/monitrc.template"
+    MONIT_TEMPLATE_REPO="/app/monitrc.template"
+
+    dokku_log_info1 "before if $MONIT_TEMPLATE_REPO"
+
+    if [[ -f MONIT_TEMPLATE_REPO ]]; then
+      dokku_log_info1 "in if"
+      MONIT_TEMPLATE=MONIT_TEMPLATE_REPO
+    fi
+
+    #COMMANDX=$(cat <<EOF
+    #  echo "test in if"
+    #EOF
+    #)
+
+    #id=$(docker run -d $IMAGE /bin/bash -e -c "$COMMANDX")
+    #id=$(docker run -d $IMAGE /bin/bash -e -c "echo \"ttttttt\"")
+
+    id=$(docker ps -lq)
+
+#    dokku_log_info1 "before log $IMAGE"
+
+    TEMPLATE_CONTENT=$(cat $MONIT_TEMPLATE)
+
+    TEMPLATEX=$(docker exec $id /bin/bash -c "[[ -f \"/app/monitrc.template\" ]] && cat /app/monitrc.template" || echo "$TEMPLATE_CONTENT")
+#   dokku_log_info1 "$debug"
+
+#   TEMPLATE=$(docker exec $id cat /app/monitrc.template)
+
+    dokku_log_info1 "post docker run $IMAGE --- $TEMPLATEX"
+
+    XX="/tmp/fileXY"
+
+    touch $XX
+
+    echo "$TEMPLATEX" > $XX
+
+    echo "---------"
+    echo $XX
+    echo "----------"
+
+    dokku_log_info1 $(eval "cat $XX")
+
+    eval "cat <<< \"$(< $XX)\" >> $MONITRC"
 
     dokku_log_info1 "Creating monitrc"
     mv $MONITRC "$DOKKU_ROOT/$APP/monitrc"
