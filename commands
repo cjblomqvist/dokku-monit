@@ -30,7 +30,7 @@ case "$1" in
     DOCKER_ID=$(docker ps -lq)
 
     MONIT_APP_TEMPLATE_FILE="/app/monitrc.template"
-    MONIT_DEFAULT_TEMPLATE_FILE="$PLUGIN_PATH/zmonit/templates/monitrc.template"
+    MONIT_DEFAULT_TEMPLATE_FILE="$PLUGIN_PATH/monit/templates/monitrc.template"
 
     # Get contents of default template, non-expanded
     MONIT_DEFAULT_TEMPLATE=$(cat $MONIT_DEFAULT_TEMPLATE_FILE)
