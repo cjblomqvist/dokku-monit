@@ -37,6 +37,9 @@ case "$1" in
     # If an app specific tempate file exists, grab that content, otherwise use MONIT_DEFAULT_TEMPLATE content
     MONIT_TEMPLATE=$(docker exec $DOCKER_ID /bin/bash -c "[[ -f \"/app/monitrc.template\" ]] && cat /app/monitrc.template" || echo "$MONIT_DEFAULT_TEMPLATE")
 
+    #Remove any previous monitrc files
+    [[ -f "$MONITRC_PATH" ]] && rm $MONITRC_PATH
+
     # Expand template and save to monitrc file for app
     eval "echo \"$MONIT_TEMPLATE\" >> $MONITRC_PATH"
 
